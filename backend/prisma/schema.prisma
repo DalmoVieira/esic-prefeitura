@@ -1,0 +1,47 @@
+// Schema do Prisma para o Sistema E-SIC
+// Define os modelos de dados do banco SQLite
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Modelo de Usuário
+// Representa tanto cidadãos quanto servidores públicos
+model User {
+  id        Int      @id @default(autoincrement())
+  nome      String
+  email     String   @unique
+  cpf       String   @unique
+  senha     String   // Senha será armazenada com hash bcrypt
+  tipo      String   // "cidadao" ou "servidor"
+  telefone  String?  // Opcional
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relacionamento: um usuário pode ter várias solicitações
+  solicitacoes Solicitacao[]
+}
+
+// Modelo de Solicitação
+// Representa uma solicitação de informação feita por um cidadão
+model Solicitacao {
+  id               Int      @id @default(autoincrement())
+  protocolo        String   @unique  // Formato: ESIC-YYYYMMDD-XXXXX
+  usuarioId        Int      // ID do usuário que criou a solicitação
+  categoria        String   // Ex: "Saúde", "Educação", "Infraestrutura"
+  descricao        String   // Detalhes da solicitação
+  formaRecebimento String   // "email" ou "portal"
+  status           String   @default("pendente") // "pendente", "em_analise", "respondida"
+  prazoResposta    DateTime // Data limite para resposta (20 dias úteis)
+  anexos           String?  // JSON com lista de anexos (opcional)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  // Relacionamento: cada solicitação pertence a um usuário
+  usuario User @relation(fields: [usuarioId], references: [id])
+}
