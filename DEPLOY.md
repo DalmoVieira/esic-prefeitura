@@ -64,9 +64,9 @@ cd esic-prefeitura
    ```bash
    npm run build
    ```
-4. Execute as migrações do banco:
+4. Execute as migrações do banco (forçando a versão 6):
    ```bash
-   npx prisma migrate deploy
+   npx prisma@6.2.1 migrate deploy
    ```
 5. Inicie o backend com PM2 usando o arquivo gerado na pasta `dist`:
    ```bash
