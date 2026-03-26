@@ -60,13 +60,17 @@ cd esic-prefeitura
    PORT=3000
    JWT_SECRET="um_segredo_super_seguro_e_longo"
    ```
-3. Execute as migrações do banco:
+3. Gere a build do backend (TypeScript para JavaScript):
+   ```bash
+   npm run build
+   ```
+4. Execute as migrações do banco:
    ```bash
    npx prisma migrate deploy
    ```
-4. Inicie o backend com PM2:
+5. Inicie o backend com PM2 usando o arquivo gerado na pasta `dist`:
    ```bash
-   pm2 start src/index.js --name esic-backend
+   pm2 start dist/index.js --name esic-backend
    ```
 
 ### Frontend
