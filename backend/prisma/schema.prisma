@@ -1,0 +1,103 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  CITIZEN
+  ADMIN
+  TECHNICIAN
+  AUTHORITY
+  CONTROL
+}
+
+enum RequestStatus {
+  OPEN
+  IN_ANALYSIS
+  RESPONDED
+  EXTENDED
+  CANCELED
+}
+
+enum AppealInstance {
+  FIRST
+  SECOND
+  THIRD
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  cpfCnpj   String   @unique
+  email     String   @unique
+  phone     String?
+  role      Role     @default(CITIZEN)
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  requests       Request[]
+  movementsFrom  Movement[] @relation("OriginUser")
+  movementsTo    Movement[] @relation("DestinationUser")
+  appeals        Appeal[]
+}
+
+model Request {
+  id           String        @id @default(uuid())
+  protocol     String        @unique
+  description  String
+  status       RequestStatus @default(OPEN)
+  openingDate  DateTime      @default(now())
+  deadline     DateTime
+  isExtended   Boolean       @default(false)
+  extensionJustification String?
+  secrecyLevel String?       // Reservado, Secreto, Ultrassecreto
+  
+  userId       String
+  user         User          @relation(fields: [userId], references: [id])
+
+  movements    Movement[]
+  appeals       Appeal[]
+  
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model Movement {
+  id          String   @id @default(uuid())
+  requestId   String
+  request     Request  @relation(fields: [requestId], references: [id])
+  
+  originUserId      String
+  originUser        User     @relation("OriginUser", fields: [originUserId], references: [id])
+  
+  destinationUserId String
+  destinationUser   User     @relation("DestinationUser", fields: [destinationUserId], references: [id])
+  
+  description String
+  date        DateTime @default(now())
+}
+
+model Appeal {
+  id          String         @id @default(uuid())
+  requestId   String
+  request     Request        @relation(fields: [requestId], references: [id])
+  
+  userId      String
+  user        User           @relation(fields: [userId], references: [id])
+  
+  instance    AppealInstance
+  justification String
+  decision    String?
+  decisionDate DateTime?
+  
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+}
