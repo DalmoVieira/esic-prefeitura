@@ -104,6 +104,11 @@ const AdminDashboard: React.FC = () => {
   return (
     <div className="container">
       <div style={{ marginBottom: '2rem' }}>
+        {error && (
+          <div style={{ backgroundColor: '#fff2f0', color: 'var(--danger)', padding: '1rem', borderRadius: 'var(--radius-md)', marginBottom: '1rem', border: '1px solid #ffccc7' }}>
+            {error}
+          </div>
+        )}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
             <h1>Painel Administrativo</h1>

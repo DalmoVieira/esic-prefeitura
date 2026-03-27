@@ -46,6 +46,12 @@ const NewRequest: React.FC = () => {
           <Send size={28} color="var(--primary)" />
           Nova Solicitação de Informação
         </h2>
+
+        {error && (
+          <div style={{ backgroundColor: '#fff2f0', color: 'var(--danger)', padding: '0.75rem', borderRadius: 'var(--radius-md)', marginBottom: '1.5rem', fontSize: '0.9rem', border: '1px solid #ffccc7' }}>
+            {error}
+          </div>
+        )}
         
         <form onSubmit={handleSubmit}>
           <div className="form-group">
