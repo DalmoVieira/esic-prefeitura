@@ -18,7 +18,7 @@ import Register from './pages/Register.tsx';
 const App: React.FC = () => {
   console.log('App rendering, current path:', window.location.pathname);
   return (
-    <Router>
+    <Router basename="/esic-prefeitura">
       <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
         <Header />
         <main style={{ flex: 1, padding: '2rem 0' }}>
