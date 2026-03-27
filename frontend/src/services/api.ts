@@ -1,6 +1,6 @@
 const API_URL = window.location.hostname === 'localhost' 
   ? 'http://localhost:3000/api' 
-  : '/api';
+  : '/esic-prefeitura/api';
 
 export const api = {
   async request(endpoint: string, options: RequestInit = {}) {
