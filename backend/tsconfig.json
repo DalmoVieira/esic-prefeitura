@@ -2,9 +2,7 @@
   "compilerOptions": {
     "target": "ES2020",
     "module": "CommonJS",
-    "moduleResolution": "node",
-    "ignoreDeprecations": "6.0",
-    "rootDir": "./src",
+    "moduleResolution": "node10",
     "outDir": "./dist",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
@@ -16,6 +14,6 @@
     "exactOptionalPropertyTypes": false,
     "isolatedModules": true
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "prisma/**/*"],
   "exclude": ["node_modules"]
 }

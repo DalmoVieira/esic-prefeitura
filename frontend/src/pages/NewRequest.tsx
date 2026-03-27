@@ -1,19 +1,42 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Send, Paperclip } from 'lucide-react';
+import { api } from '../services/api';
 
 const NewRequest: React.FC = () => {
   console.log('Rendering NewRequest component');
   const navigate = useNavigate();
   const [description, setDescription] = useState('');
   const [format, setFormat] = useState('SYSTEM'); // SYSTEM, EMAIL, PHYSICAL
+  const [honeypot, setHoneypot] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulate request creation
-    const protocol = 'ESIC-' + Math.random().toString(36).substr(2, 9).toUpperCase();
-    alert(`Pedido enviado com sucesso! Protocolo: ${protocol}`);
-    navigate('/dashboard');
+    
+    if (honeypot) {
+      // Bot detected!
+      console.warn('Bot detected via honeypot');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError('');
+      const response = await api.post('/requests', {
+        description,
+        format,
+        website: honeypot // Send honeypot field (should be empty)
+      });
+      
+      alert(`Pedido enviado com sucesso! Protocolo: ${response.protocol}`);
+      navigate('/dashboard');
+    } catch (err: any) {
+      setError(err.message || 'Erro ao enviar pedido');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -77,9 +100,21 @@ const NewRequest: React.FC = () => {
             </div>
           </div>
 
+          {/* Honeypot field - hidden from humans */}
+          <div style={{ position: 'absolute', left: '-5000px', opacity: 0, height: 0, overflow: 'hidden' }}>
+            <input 
+              type="text" 
+              name="website" 
+              value={honeypot} 
+              onChange={(e) => setHoneypot(e.target.value)} 
+              tabIndex={-1} 
+              autoComplete="off" 
+            />
+          </div>
+
           <div style={{ display: 'flex', gap: '1rem', marginTop: '2.5rem' }}>
-            <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>
-              Enviar Solicitação
+            <button type="submit" disabled={loading} className="btn btn-primary" style={{ flex: 1 }}>
+              {loading ? 'Enviando...' : 'Enviar Solicitação'}
             </button>
             <button type="button" className="btn" style={{ flex: 1, border: '1px solid var(--border-color)', backgroundColor: 'var(--white)' }} onClick={() => navigate('/dashboard')}>
               Cancelar

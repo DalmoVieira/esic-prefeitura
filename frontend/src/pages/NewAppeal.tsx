@@ -8,10 +8,15 @@ const NewAppeal: React.FC = () => {
   const navigate = useNavigate();
   const [justification, setJustification] = useState('');
   const [instance, setInstance] = useState('1st'); // 1st, 2nd, 3rd
+  const [honeypot, setHoneypot] = useState('');
   console.log('Current instance:', instance, setInstance);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (honeypot) {
+      console.warn('Bot detected via honeypot');
+      return;
+    }
     alert(`Recurso de ${instance} instância interposto com sucesso!`);
     navigate('/dashboard');
   };
@@ -60,6 +65,18 @@ const NewAppeal: React.FC = () => {
               value={justification}
               onChange={(e) => setJustification(e.target.value)}
               required
+            />
+          </div>
+
+          {/* Honeypot field - hidden from humans */}
+          <div style={{ position: 'absolute', left: '-5000px', opacity: 0, height: 0, overflow: 'hidden' }}>
+            <input 
+              type="text" 
+              name="website" 
+              value={honeypot} 
+              onChange={(e) => setHoneypot(e.target.value)} 
+              tabIndex={-1} 
+              autoComplete="off" 
             />
           </div>
 

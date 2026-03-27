@@ -14,11 +14,18 @@ import Transparency from './pages/Transparency.tsx';
 import RequestDetail from './pages/RequestDetail.tsx';
 import ForgotPassword from './pages/ForgotPassword.tsx';
 import Register from './pages/Register.tsx';
+import UserManagement from './pages/UserManagement.tsx';
+import DepartmentManagement from './pages/DepartmentManagement.tsx';
 
 const App: React.FC = () => {
-  console.log('App rendering, current path:', window.location.pathname);
+  // Use /esic-prefeitura if we are in production OR if the current URL already starts with it
+  const basename = (import.meta.env.PROD || window.location.pathname.startsWith('/esic-prefeitura')) 
+    ? '/esic-prefeitura' 
+    : '';
+  
+  console.log('App rendering, path:', window.location.pathname, 'detected basename:', basename);
   return (
-    <Router basename="/esic-prefeitura">
+    <Router basename={basename}>
       <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
         <Header />
         <main style={{ flex: 1, padding: '2rem 0' }}>
@@ -29,6 +36,8 @@ const App: React.FC = () => {
             <Route path="/pedidos" element={<Dashboard />} />
             <Route path="/novo-pedido" element={<NewRequest />} />
             <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/usuarios" element={<UserManagement />} />
+            <Route path="/admin/setores" element={<DepartmentManagement />} />
             <Route path="/admin/triage/:id" element={<TriageRequest />} />
             <Route path="/admin/respond/:id" element={<RespondRequest />} />
             <Route path="/recorrer/:id" element={<NewAppeal />} />

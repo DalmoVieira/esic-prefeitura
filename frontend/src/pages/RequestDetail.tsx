@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, FileText, Clock, MessageSquare, Paperclip, Gavel } from 'lucide-react';
+import { translateStatus, getStatusColor } from '../utils/statusTranslate';
 
 const RequestDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -24,13 +25,19 @@ const RequestDetail: React.FC = () => {
   };
 
   const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'PENDING': return <span className="badge badge-warning">Pendente</span>;
-      case 'TRIAGED': return <span className="badge badge-info text-white">Em Análise</span>;
-      case 'RESPONDED': return <span className="badge badge-success">Respondido</span>;
-      case 'APPEALED': return <span className="badge badge-danger">Em Recurso</span>;
-      default: return <span className="badge">{status}</span>;
-    }
+    const { bg, text } = getStatusColor(status);
+    return (
+      <span style={{ 
+        backgroundColor: bg, 
+        color: text, 
+        padding: '0.25rem 0.75rem', 
+        borderRadius: '1rem', 
+        fontSize: '0.85rem', 
+        fontWeight: 'bold' 
+      }}>
+        {translateStatus(status)}
+      </span>
+    );
   };
 
   return (

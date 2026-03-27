@@ -43,10 +43,23 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  departmentId String?
+  department   Department? @relation(fields: [departmentId], references: [id])
+
   requests       Request[]
   movementsFrom  Movement[] @relation("OriginUser")
   movementsTo    Movement[] @relation("DestinationUser")
   appeals        Appeal[]
+}
+
+model Department {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  description String?
+  users     User[]
+  requests  Request[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Request {
@@ -62,6 +75,9 @@ model Request {
   
   userId       String
   user         User          @relation(fields: [userId], references: [id])
+
+  departmentId String?
+  department   Department? @relation(fields: [departmentId], references: [id])
 
   movements    Movement[]
   appeals       Appeal[]

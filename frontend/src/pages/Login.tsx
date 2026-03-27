@@ -1,32 +1,38 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ShieldCheck, User, Lock, LogIn } from 'lucide-react';
+import { api } from '../services/api';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulate authentication
-    localStorage.setItem('token', 'mock-jwt-token');
-    
-    // Check if it's admin or citizen based on identifier
-    if (identifier.toLowerCase().includes('admin')) {
-      localStorage.setItem('user', JSON.stringify({
-        name: 'Administrador SIC',
-        role: 'ADMIN',
-        email: identifier
-      }));
-      navigate('/admin');
-    } else {
-      localStorage.setItem('user', JSON.stringify({
-        name: 'Cidadão Exemplo',
-        role: 'CITIZEN',
-        cpf: identifier
-      }));
-      navigate('/dashboard');
+    setLoading(true);
+    setError('');
+
+    try {
+      const data = await api.post('/login', {
+        email: identifier, // Currently backend expects email
+        password,
+      });
+
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+
+      if (data.user.role === 'ADMIN') {
+        navigate('/admin');
+      } else {
+        navigate('/dashboard');
+      }
+    } catch (err: any) {
+      setError(err.message || 'Credenciais inválidas. Verifique seu e-mail e senha.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -45,14 +51,19 @@ const Login: React.FC = () => {
         </div>
 
         <form onSubmit={handleLogin}>
+          {error && (
+            <div style={{ backgroundColor: '#fff2f0', color: 'var(--danger)', padding: '0.75rem', borderRadius: 'var(--radius-md)', marginBottom: '1.5rem', fontSize: '0.9rem', border: '1px solid #ffccc7' }}>
+              {error}
+            </div>
+          )}
           <div className="form-group">
             <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <User size={16} /> CPF ou E-mail
+              <User size={16} /> E-mail
             </label>
             <input 
               type="text" 
               className="form-control" 
-              placeholder="Digite seu CPF ou e-mail"
+              placeholder="Digite seu e-mail"
               value={identifier}
               onChange={(e) => setIdentifier(e.target.value)}
               required
@@ -83,6 +94,7 @@ const Login: React.FC = () => {
           <button 
             type="submit"
             className="btn btn-primary" 
+            disabled={loading}
             style={{ 
               width: '100%', 
               padding: '0.8rem', 
@@ -90,11 +102,12 @@ const Login: React.FC = () => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '0.5rem'
+              gap: '0.5rem',
+              opacity: loading ? 0.7 : 1
             }}
           >
             <LogIn size={20} />
-            Entrar no Sistema
+            {loading ? 'Entrando...' : 'Entrar no Sistema'}
           </button>
         </form>
 
