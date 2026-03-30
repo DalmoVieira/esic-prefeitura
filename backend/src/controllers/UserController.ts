@@ -2,13 +2,20 @@ import { Request, Response } from 'express';
 import { prisma } from '../lib/prisma';
 import bcrypt from 'bcryptjs';
 import { z } from 'zod';
+import { validateCPF, validateCNPJ } from '../utils/validators';
 
 const userSchema = z.object({
   name: z.string().min(3),
   email: z.string().email(),
-  cpfCnpj: z.string().refine(val => val.length === 11 || val.length === 14, {
-    message: "O identificador deve ter 11 (CPF) ou 14 (CNPJ) dígitos"
-  }),
+  cpfCnpj: z.string().refine(
+    (val) => {
+      const digits = val.replace(/\D/g, '');
+      if (digits.length === 11) return validateCPF(digits);
+      if (digits.length === 14) return validateCNPJ(digits);
+      return false;
+    },
+    { message: 'CPF ou CNPJ inválido. Verifique os dados informados.' }
+  ),
   password: z.string().min(6),
   role: z.enum(['CITIZEN', 'ADMIN', 'TECHNICIAN', 'AUTHORITY', 'CONTROL']).default('CITIZEN'),
   departmentId: z.string().optional(),

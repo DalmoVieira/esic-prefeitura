@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, User, Mail, Lock, ShieldCheck, Check } from 'lucide-react';
 import { api } from '../services/api';
+import { validateCPF, validateCNPJ } from '../utils/validators';
 
 const Register: React.FC = () => {
   const navigate = useNavigate();
@@ -40,15 +41,27 @@ const Register: React.FC = () => {
       return;
     }
 
-    // Basic cleaning of identifier (removing dots and dashes if any)
+    // Limpeza e validação matemática do CPF/CNPJ
     const cleanedIdentifier = formData.cpfCnpj.replace(/\D/g, '');
-    if (userType === 'PF' && cleanedIdentifier.length !== 11) {
-      setError('CPF deve ter 11 dígitos.');
-      return;
+    if (userType === 'PF') {
+      if (cleanedIdentifier.length !== 11) {
+        setError('CPF deve ter 11 dígitos.');
+        return;
+      }
+      if (!validateCPF(cleanedIdentifier)) {
+        setError('CPF inválido. Verifique o número informado.');
+        return;
+      }
     }
-    if (userType === 'PJ' && cleanedIdentifier.length !== 14) {
-      setError('CNPJ deve ter 14 dígitos.');
-      return;
+    if (userType === 'PJ') {
+      if (cleanedIdentifier.length !== 14) {
+        setError('CNPJ deve ter 14 dígitos.');
+        return;
+      }
+      if (!validateCNPJ(cleanedIdentifier)) {
+        setError('CNPJ inválido. Verifique o número informado.');
+        return;
+      }
     }
 
     setLoading(true);
