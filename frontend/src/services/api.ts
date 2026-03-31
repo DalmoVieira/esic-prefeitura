@@ -1,5 +1,5 @@
 const API_URL = window.location.hostname === 'localhost' 
-  ? 'http://localhost:3000/api' 
+  ? 'http://localhost:3001/api' 
   : '/api';
 
 export const api = {
@@ -18,6 +18,14 @@ export const api = {
 
     if (response.status === 204) {
       return null;
+    }
+
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      if (!response.ok) {
+        throw new Error(`Erro do servidor (${response.status}). O serviço pode estar indisponível.`);
+      }
+      throw new Error('A resposta do servidor não é um JSON válido. Verifique a configuração da API.');
     }
 
     const data = await response.json();

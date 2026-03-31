@@ -103,6 +103,25 @@ class UserController {
       const id = req.params.id as string;
       const { name, email, cpfCnpj, role, departmentId, password } = req.body;
 
+      // Check if email or cpfCnpj already exists for another user
+      const existingUser = await prisma.user.findFirst({
+        where: {
+          OR: [
+            { email },
+            { cpfCnpj }
+          ],
+          NOT: { id }
+        }
+      });
+
+      if (existingUser) {
+        return res.status(400).json({ 
+          error: existingUser.email === email 
+            ? 'Este e-mail já está em uso por outro usuário.' 
+            : 'Este CPF/CNPJ já está cadastrado para outro usuário.' 
+        });
+      }
+
       const data: any = {
         name,
         email,
