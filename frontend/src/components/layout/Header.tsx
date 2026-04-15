@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ShieldCheck, LogIn, LogOut, User as UserIcon, LayoutDashboard, Menu, X } from 'lucide-react';
+import { useConfig } from '../../contexts/ConfigContext';
 
 const Header: React.FC = () => {
   const navigate = useNavigate();
+  const { config } = useConfig();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const userData = localStorage.getItem('user');
   const user = userData ? JSON.parse(userData) : null;
@@ -38,10 +40,18 @@ const Header: React.FC = () => {
           alignItems: 'center',
           gap: '0.5rem'
         }}>
-          <ShieldCheck size={32} />
+          {config.coatOfArmsFile ? (
+            <img
+              src={`http://localhost:3001/uploads/${config.coatOfArmsFile}`}
+              alt={`Brasão ${config.cityName}`}
+              style={{ width: '40px', height: '40px', objectFit: 'contain' }}
+            />
+          ) : (
+            <ShieldCheck size={32} />
+          )}
           <div>
             <div style={{ fontSize: '1.25rem', lineHeight: '1.1' }}>e-SIC</div>
-            <div style={{ fontSize: '0.85rem', fontWeight: 'normal', opacity: '0.8' }}>Rio Claro - RJ</div>
+            <div style={{ fontSize: '0.85rem', fontWeight: 'normal', opacity: '0.8' }}>{config.cityName} - {config.state}</div>
           </div>
         </Link>
 

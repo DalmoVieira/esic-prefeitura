@@ -1,7 +1,49 @@
-import React from 'react';
-import { BarChart, TrendingUp, Users, Clock, CheckCircle, Search } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { BarChart, TrendingUp, Users, Clock, CheckCircle, Search, FileText } from 'lucide-react';
+
+const POPULAR_TOPICS = [
+  'Concursos Públicos',
+  'Gastos com COVID-19',
+  'Obras Viárias',
+  'Saúde',
+  'Educação',
+  'Contratos e Licitações',
+];
+
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
 const Transparency: React.FC = () => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [results, setResults] = useState<any[]>([]);
+  const [searching, setSearching] = useState(false);
+  const [searched, setSearched] = useState(false);
+
+  const doSearch = useCallback(async (term: string) => {
+    setSearching(true);
+    setSearched(true);
+    try {
+      const url = `${API_BASE}/public/requests${term ? `?q=${encodeURIComponent(term)}` : ''}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      setResults(data);
+    } catch {
+      setResults([]);
+    } finally {
+      setSearching(false);
+    }
+  }, []);
+
+  // Debounce: busca 500ms após o usuário parar de digitar
+  useEffect(() => {
+    if (!searchTerm && !searched) return;
+    const t = setTimeout(() => doSearch(searchTerm), 500);
+    return () => clearTimeout(t);
+  }, [searchTerm, doSearch]);
+
+  const handleChipClick = (topic: string) => {
+    setSearchTerm(topic);
+    doSearch(topic);
+  };
   return (
     <div className="container">
       <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
@@ -105,23 +147,87 @@ const Transparency: React.FC = () => {
           Pesquise na base de conhecimento por pedidos já respondidos. As informações pessoais dos solicitantes são preservadas conforme a LGPD.
         </p>
         <div style={{ position: 'relative', maxWidth: '600px' }}>
-          <input 
-            type="text" 
-            className="form-control" 
-            placeholder="Ex: 'Contratos merenda escolar', 'Folha de pagamento'..." 
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Ex: 'Contratos merenda escolar', 'Folha de pagamento'..."
             style={{ padding: '1rem 1rem 1rem 3rem', fontSize: '1.1rem' }}
+            value={searchTerm}
+            onChange={e => setSearchTerm(e.target.value)}
           />
           <Search size={24} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
         </div>
-        <div style={{ marginTop: '2rem' }}>
+
+        <div style={{ marginTop: '1.5rem' }}>
           <h4 style={{ color: 'var(--text-muted)', textTransform: 'uppercase', fontSize: '0.8rem', letterSpacing: '1px', marginBottom: '1rem' }}>Assuntos mais pesquisados</h4>
           <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-            <span style={{ backgroundColor: '#eee', padding: '0.5rem 1rem', borderRadius: '2rem', fontSize: '0.9rem' }}>Concursos Públicos</span>
-            <span style={{ backgroundColor: '#eee', padding: '0.5rem 1rem', borderRadius: '2rem', fontSize: '0.9rem' }}>Gastos com COVID-19</span>
-            <span style={{ backgroundColor: '#eee', padding: '0.5rem 1rem', borderRadius: '2rem', fontSize: '0.9rem' }}>Obras Viárias</span>
-            <span style={{ backgroundColor: '#eee', padding: '0.5rem 1rem', borderRadius: '2rem', fontSize: '0.9rem' }}>Saúde</span>
+            {POPULAR_TOPICS.map(topic => (
+              <button
+                key={topic}
+                onClick={() => handleChipClick(topic)}
+                style={{
+                  backgroundColor: searchTerm === topic ? 'var(--primary)' : '#eee',
+                  color: searchTerm === topic ? '#fff' : 'var(--text-main)',
+                  padding: '0.5rem 1rem',
+                  borderRadius: '2rem',
+                  fontSize: '0.9rem',
+                  border: 'none',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                }}
+              >
+                {topic}
+              </button>
+            ))}
+            {searchTerm && (
+              <button
+                onClick={() => { setSearchTerm(''); setResults([]); setSearched(false); }}
+                style={{ backgroundColor: 'transparent', color: 'var(--danger)', padding: '0.5rem 1rem', borderRadius: '2rem', fontSize: '0.9rem', border: '1px solid var(--danger)', cursor: 'pointer' }}
+              >
+                Limpar
+              </button>
+            )}
           </div>
         </div>
+
+        {/* Resultados */}
+        {searching && (
+          <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>Buscando...</div>
+        )}
+
+        {!searching && searched && (
+          <div style={{ marginTop: '2rem' }}>
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '1rem' }}>
+              {results.length === 0
+                ? 'Nenhum resultado encontrado.'
+                : `${results.length} resultado${results.length > 1 ? 's' : ''} encontrado${results.length > 1 ? 's' : ''}.`}
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {results.map(req => (
+                <div key={req.id} style={{ border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', padding: '1.25rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem', marginBottom: '0.75rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <FileText size={16} color="var(--primary)" />
+                      <span style={{ fontWeight: 'bold', color: 'var(--primary)', fontSize: '0.9rem' }}>{req.protocol}</span>
+                    </div>
+                    <div style={{ display: 'flex', gap: '0.75rem', fontSize: '0.8rem', color: 'var(--text-muted)', flexShrink: 0 }}>
+                      {req.department?.name && <span>{req.department.name}</span>}
+                      <span>{new Date(req.openingDate).toLocaleDateString('pt-BR')}</span>
+                    </div>
+                  </div>
+                  <p style={{ margin: '0 0 0.75rem', fontSize: '0.9rem', color: 'var(--text-main)' }}>
+                    <strong>Pergunta:</strong> {req.description}
+                  </p>
+                  {req.response && (
+                    <p style={{ margin: 0, fontSize: '0.9rem', color: '#555', backgroundColor: '#f6ffed', padding: '0.75rem', borderRadius: 'var(--radius-sm)', borderLeft: '3px solid var(--success)' }}>
+                      <strong>Resposta:</strong> {req.response}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </section>
     </div>
   );

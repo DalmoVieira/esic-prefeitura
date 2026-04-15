@@ -1,18 +1,25 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { FileText, Search, Clock, Shield } from 'lucide-react';
+import { useConfig } from '../contexts/ConfigContext';
 
 const Home: React.FC = () => {
+  const { config } = useConfig();
   return (
     <div className="container">
       <section style={{ textAlign: 'center', padding: '4rem 0' }}>
         <h1 style={{ fontSize: '3rem', marginBottom: '1.5rem', fontWeight: '800' }}>
           Bem-vindo ao <span style={{ color: 'var(--primary)' }}>e-SIC</span>
         </h1>
-        <p style={{ fontSize: '1.25rem', color: 'var(--text-muted)', maxWidth: '800px', margin: '0 auto 2.5rem' }}>
-          Solicite informações públicas, acompanhe seus pedidos e exerça seu direito de cidadania com transparência e agilidade.
+        <p style={{ fontSize: '1.25rem', color: 'var(--text-muted)', maxWidth: '800px', margin: '0 auto 0.75rem' }}>
+          {config.slogan || 'Solicite informações públicas, acompanhe seus pedidos e exerça seu direito de cidadania com transparência e agilidade.'}
         </p>
-        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+        {config.cityName !== 'Minha Cidade' && (
+          <p style={{ fontSize: '1rem', color: 'var(--primary)', fontWeight: '600', marginBottom: '2rem' }}>
+            Prefeitura Municipal de {config.cityName} - {config.state}
+          </p>
+        )}
+        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginTop: '2rem' }}>
           <Link to="/login" className="btn btn-primary" style={{ padding: '1rem 2rem' }}>
             Fazer um Pedido
           </Link>

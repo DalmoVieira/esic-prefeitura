@@ -1,6 +1,8 @@
 import React from 'react';
+import { useConfig } from '../../contexts/ConfigContext';
 
 const Footer: React.FC = () => {
+  const { config } = useConfig();
   return (
     <footer style={{
       backgroundColor: 'var(--dark)',
@@ -15,16 +17,23 @@ const Footer: React.FC = () => {
           gap: '2rem'
         }}>
           <div>
-            <h3>Rio Claro - RJ</h3>
-            <p style={{ color: '#bbb', fontSize: '0.9rem' }}>
-              Av. João Baptista Portugal, 230 - Centro<br />
-              CEP: 27.460-000 RJ
-            </p>
+            <h3>{config.cityName} - {config.state}</h3>
+            {config.address && (
+              <p style={{ color: '#bbb', fontSize: '0.9rem' }}>{config.address}</p>
+            )}
+            {config.cnpj && (
+              <p style={{ color: '#bbb', fontSize: '0.85rem' }}>CNPJ: {config.cnpj}</p>
+            )}
+            {config.slogan && (
+              <p style={{ color: '#aaa', fontSize: '0.85rem', fontStyle: 'italic', marginTop: '0.5rem' }}>"{config.slogan}"</p>
+            )}
           </div>
           <div>
             <h4>Links Úteis</h4>
             <ul style={{ listStyle: 'none', padding: 0 }}>
-              <li><a href="https://rioclaro.rj.gov.br" target="_blank" rel="noopener noreferrer" style={{ color: '#bbb' }}>Portal da Prefeitura</a></li>
+              {config.website && (
+                <li><a href={config.website} target="_blank" rel="noopener noreferrer" style={{ color: '#bbb' }}>Portal da Prefeitura</a></li>
+              )}
               <li><a href="#" style={{ color: '#bbb' }}>Lei de Acesso à Informação</a></li>
               <li><a href="#" style={{ color: '#bbb' }}>Perguntas Frequentes</a></li>
             </ul>
@@ -32,8 +41,9 @@ const Footer: React.FC = () => {
           <div>
             <h4>Contato</h4>
             <p style={{ color: '#bbb' }}>Ouvidoria Geral do Município</p>
-            <p style={{ color: '#bbb' }}>Email: esic@rioclaro.rj.gov.br</p>
-            <p style={{ color: '#bbb' }}>Site: rioclaro.rj.gov.br</p>
+            {config.email && <p style={{ color: '#bbb' }}>Email: <a href={`mailto:${config.email}`} style={{ color: '#bbb' }}>{config.email}</a></p>}
+            {config.phone && <p style={{ color: '#bbb' }}>Telefone: {config.phone}</p>}
+            {config.website && <p style={{ color: '#bbb' }}>Site: <a href={config.website} target="_blank" rel="noopener noreferrer" style={{ color: '#bbb' }}>{config.website.replace('https://', '')}</a></p>}
           </div>
         </div>
         <div style={{
@@ -44,7 +54,7 @@ const Footer: React.FC = () => {
           color: '#888',
           fontSize: '0.85rem'
         }}>
-          &copy; {new Date().getFullYear()} Prefeitura Municipal de Rio Claro - RJ. Todos os direitos reservados.
+          &copy; {new Date().getFullYear()} Prefeitura Municipal de {config.cityName} - {config.state}. Todos os direitos reservados.
         </div>
       </div>
     </footer>

@@ -16,6 +16,7 @@ import ForgotPassword from './pages/ForgotPassword.tsx';
 import Register from './pages/Register.tsx';
 import UserManagement from './pages/UserManagement.tsx';
 import DepartmentManagement from './pages/DepartmentManagement.tsx';
+import MunicipalConfigPage from './pages/MunicipalConfigPage.tsx';
 
 const App: React.FC = () => {
   // Use /esic-prefeitura if we are in production OR if the current URL already starts with it
@@ -38,6 +39,7 @@ const App: React.FC = () => {
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/usuarios" element={<UserManagement />} />
             <Route path="/admin/setores" element={<DepartmentManagement />} />
+            <Route path="/admin/config" element={<MunicipalConfigPage />} />
             <Route path="/admin/triage/:id" element={<TriageRequest />} />
             <Route path="/admin/respond/:id" element={<RespondRequest />} />
             <Route path="/recorrer/:id" element={<NewAppeal />} />

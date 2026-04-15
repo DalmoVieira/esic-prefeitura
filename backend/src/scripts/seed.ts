@@ -342,6 +342,25 @@ async function main() {
   }
   console.log('✅ Recursos criados.');
 
+  // ── 6. CONFIGURAÇÃO MUNICIPAL ─────────────────────────────────────────────────
+  await prisma.municipalConfig.upsert({
+    where: { id: '1' },
+    update: {},
+    create: {
+      id: '1',
+      cityName: 'Rio Claro',
+      state: 'RJ',
+      cnpj: '29.138.489/0001-04',
+      slogan: 'Transparência e acesso à informação para todos os cidadãos.',
+      address: 'Av. João Baptista Portugal, 230 - Centro, Rio Claro/RJ - CEP: 27.460-000',
+      phone: '(24) 3351-5600',
+      email: 'esic@rioclaro.rj.gov.br',
+      website: 'https://rioclaro.rj.gov.br',
+      primaryColor: '#1a5276',
+    },
+  });
+  console.log('✅ Configuração municipal criada.');
+
   console.log('\n🎉 Seed completo! Resumo:');
   console.log('   🏢 Departamentos:  7');
   console.log('   👥 Usuários:       11 (1 ADMIN · 2 TECHNICIAN · 1 AUTHORITY · 1 CONTROL · 4 CITIZEN)');

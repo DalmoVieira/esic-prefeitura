@@ -1,8 +1,29 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, User, Mail, Lock, ShieldCheck, Check } from 'lucide-react';
+import { ArrowLeft, User, Mail, Lock, ShieldCheck, Check, Eye, EyeOff } from 'lucide-react';
 import { api } from '../services/api';
 import { validateCPF, validateCNPJ } from '../utils/validators';
+
+interface PasswordStrength {
+  score: number; // 0-4
+  label: string;
+  color: string;
+  rules: { label: string; ok: boolean }[];
+}
+
+function checkPasswordStrength(password: string): PasswordStrength {
+  const rules = [
+    { label: 'Mínimo de 8 caracteres',             ok: password.length >= 8 },
+    { label: 'Pelo menos uma letra maiúscula (A-Z)', ok: /[A-Z]/.test(password) },
+    { label: 'Pelo menos uma letra minúscula (a-z)', ok: /[a-z]/.test(password) },
+    { label: 'Pelo menos um número (0-9)',           ok: /[0-9]/.test(password) },
+    { label: 'Pelo menos um caractere especial (!@#$...)', ok: /[^A-Za-z0-9]/.test(password) },
+  ];
+  const score = rules.filter(r => r.ok).length;
+  const labels = ['Muito fraca', 'Fraca', 'Razoável', 'Boa', 'Forte'];
+  const colors = ['#e74c3c', '#e67e22', '#f1c40f', '#2ecc71', '#27ae60'];
+  return { score, label: password ? labels[score - 1] || labels[0] : '', color: colors[score - 1] || colors[0], rules };
+}
 
 const Register: React.FC = () => {
   const navigate = useNavigate();
@@ -19,11 +40,19 @@ const Register: React.FC = () => {
   });
   const [captcha, setCaptcha] = useState({ a: Math.floor(Math.random() * 10), b: Math.floor(Math.random() * 10) });
   const [captchaAnswer, setCaptchaAnswer] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (formData.password !== formData.confirmPassword) {
       setError('As senhas não coincidem!');
+      return;
+    }
+
+    const strength = checkPasswordStrength(formData.password);
+    if (strength.score < 4) {
+      setError('A senha não atende aos requisitos mínimos de segurança. Verifique as dicas abaixo.');
       return;
     }
 
@@ -193,33 +222,71 @@ const Register: React.FC = () => {
             <label className="form-label">Senha</label>
             <div style={{ position: 'relative' }}>
               <input 
-                type="password" 
+                type={showPassword ? 'text' : 'password'}
                 name="password"
                 className="form-control" 
-                placeholder="Mínimo 8 caracteres"
+                placeholder="Crie uma senha segura"
                 value={formData.password}
                 onChange={handleChange}
                 required
-                style={{ paddingLeft: '2.5rem' }}
+                style={{ paddingLeft: '2.5rem', paddingRight: '2.5rem' }}
               />
               <Lock size={18} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+              <button type="button" onClick={() => setShowPassword(v => !v)} style={{ position: 'absolute', right: '0.75rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: 0 }}>
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
             </div>
+
+            {/* Medidor de força */}
+            {formData.password && (() => {
+              const strength = checkPasswordStrength(formData.password);
+              return (
+                <div style={{ marginTop: '0.75rem' }}>
+                  {/* Barra */}
+                  <div style={{ display: 'flex', gap: '4px', marginBottom: '0.4rem' }}>
+                    {[1,2,3,4,5].map(i => (
+                      <div key={i} style={{ flex: 1, height: '5px', borderRadius: '3px', backgroundColor: i <= strength.score ? strength.color : '#e0e0e0', transition: 'background-color 0.3s' }} />
+                    ))}
+                  </div>
+                  <div style={{ fontSize: '0.8rem', fontWeight: '600', color: strength.color, marginBottom: '0.5rem' }}>
+                    Força da senha: {strength.label}
+                  </div>
+                  {/* Requisitos */}
+                  <div style={{ backgroundColor: '#f9f9f9', border: '1px solid #eee', borderRadius: 'var(--radius-md)', padding: '0.75rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.35rem' }}>
+                    {strength.rules.map(rule => (
+                      <div key={rule.label} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.78rem', color: rule.ok ? '#27ae60' : '#999' }}>
+                        <span style={{ fontSize: '0.85rem' }}>{rule.ok ? '✓' : '○'}</span>
+                        {rule.label}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
           </div>
 
           <div className="form-group">
             <label className="form-label">Confirmar Senha</label>
             <div style={{ position: 'relative' }}>
               <input 
-                type="password" 
+                type={showConfirmPassword ? 'text' : 'password'}
                 name="confirmPassword"
                 className="form-control" 
                 placeholder="Repita sua senha"
                 value={formData.confirmPassword}
                 onChange={handleChange}
                 required
-                style={{ paddingLeft: '2.5rem' }}
+                style={{ paddingLeft: '2.5rem', paddingRight: '2.5rem' }}
               />
               <Lock size={18} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+              <button type="button" onClick={() => setShowConfirmPassword(v => !v)} style={{ position: 'absolute', right: '0.75rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: 0 }}>
+                {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+              {formData.confirmPassword && (
+                <span style={{ position: 'absolute', right: '2.5rem', top: '50%', transform: 'translateY(-50%)', fontSize: '0.8rem', color: formData.password === formData.confirmPassword ? '#27ae60' : '#e74c3c' }}>
+                  {formData.password === formData.confirmPassword ? '✓' : '✗'}
+                </span>
+              )}
             </div>
           </div>
 

@@ -3,12 +3,15 @@ import AuthController from '../controllers/AuthController';
 import UserController from '../controllers/UserController';
 import DepartmentController from '../controllers/DepartmentController';
 import RequestController, { upload } from '../controllers/RequestController';
+import ConfigController, { uploadBrasao } from '../controllers/ConfigController';
 import { authMiddleware, roleMiddleware } from '../middlewares/auth';
 
 const router = Router();
 
 router.post('/login', AuthController.login);
 router.post('/citizens', UserController.create); // Public registration
+router.get('/config', ConfigController.show); // Public — needs no auth
+router.get('/public/requests', RequestController.publicSearch); // Public search of responded requests
 
 // Protected routes
 router.use(authMiddleware);
@@ -22,6 +25,8 @@ router.get('/departments', DepartmentController.index);
 router.post('/departments', roleMiddleware(['ADMIN']), DepartmentController.store);
 router.put('/departments/:id', roleMiddleware(['ADMIN']), DepartmentController.update);
 router.delete('/departments/:id', roleMiddleware(['ADMIN']), DepartmentController.destroy);
+
+router.put('/config', roleMiddleware(['ADMIN']), uploadBrasao.fields([{ name: 'coatOfArms', maxCount: 1 }, { name: 'favicon', maxCount: 1 }]), ConfigController.update);
 
 router.get('/requests', RequestController.index);
 router.post('/requests', RequestController.create);

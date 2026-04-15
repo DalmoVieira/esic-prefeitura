@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Users, FileText, Clock, AlertTriangle, ArrowRight, CheckCircle, Building2 } from 'lucide-react';
+import { Users, FileText, Clock, AlertTriangle, ArrowRight, CheckCircle, Building2, Settings } from 'lucide-react';
 import { api } from '../services/api';
 import { translateStatus, getStatusColor } from '../utils/statusTranslate';
 
@@ -129,6 +129,10 @@ const AdminDashboard: React.FC = () => {
             <p style={{ color: 'var(--text-muted)' }}>Gestão e triagem de pedidos de informação.</p>
           </div>
           <div style={{ display: 'flex', gap: '1rem' }}>
+            <Link to="/admin/config" className="btn" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none', border: '1px solid var(--border-color)' }}>
+              <Settings size={20} />
+              Configurações
+            </Link>
             <Link to="/admin/setores" className="btn" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none', border: '1px solid var(--border-color)' }}>
               <Building2 size={20} />
               Gerenciar Setores

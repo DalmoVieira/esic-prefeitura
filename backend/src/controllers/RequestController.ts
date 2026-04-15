@@ -277,6 +277,39 @@ class RequestController {
       return res.status(500).json({ error: 'Erro ao listar anexos' });
     }
   }
+
+  async publicSearch(req: Request, res: Response) {
+    try {
+      const q = (req.query.q as string || '').trim();
+      const where: any = { status: 'RESPONDED' };
+
+      if (q) {
+        where.OR = [
+          { description: { contains: q, mode: 'insensitive' } },
+          { response:    { contains: q, mode: 'insensitive' } },
+          { protocol:    { contains: q, mode: 'insensitive' } },
+        ];
+      }
+
+      const requests = await prisma.request.findMany({
+        where,
+        select: {
+          id: true,
+          protocol: true,
+          description: true,
+          response: true,
+          openingDate: true,
+          department: { select: { name: true } },
+        },
+        orderBy: { openingDate: 'desc' },
+        take: 20,
+      });
+
+      return res.json(requests);
+    } catch (error) {
+      return res.status(500).json({ error: 'Erro na busca pública' });
+    }
+  }
 }
 
 export default new RequestController();
