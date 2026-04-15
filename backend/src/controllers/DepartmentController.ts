@@ -15,10 +15,10 @@ class DepartmentController {
 
   async store(req: Request, res: Response) {
     try {
-      const { name, description } = req.body;
+      const { name, description, phone } = req.body;
       
       const department = await prisma.department.create({
-        data: { name, description }
+        data: { name, description, phone }
       });
       
       return res.status(201).json(department);
@@ -30,11 +30,11 @@ class DepartmentController {
   async update(req: Request, res: Response) {
     try {
       const id = req.params.id as string;
-      const { name, description } = req.body;
+      const { name, description, phone } = req.body;
       
       const department = await prisma.department.update({
         where: { id },
-        data: { name, description }
+        data: { name, description, phone }
       });
       
       return res.json(department);

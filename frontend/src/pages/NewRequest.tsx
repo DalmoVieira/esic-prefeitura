@@ -7,10 +7,11 @@ const NewRequest: React.FC = () => {
   console.log('Rendering NewRequest component');
   const navigate = useNavigate();
   const [description, setDescription] = useState('');
-  const [format, setFormat] = useState('SYSTEM'); // SYSTEM, EMAIL, PHYSICAL
+  const [format, setFormat] = useState('SYSTEM');
   const [honeypot, setHoneypot] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,9 +28,16 @@ const NewRequest: React.FC = () => {
       const response = await api.post('/requests', {
         description,
         format,
-        website: honeypot // Send honeypot field (should be empty)
+        website: honeypot
       });
-      
+
+      // Upload attachments if any
+      if (selectedFiles.length > 0) {
+        const formData = new FormData();
+        selectedFiles.forEach((f) => formData.append('files', f));
+        await api.upload(`/requests/${response.id}/attachments`, formData);
+      }
+
       alert(`Pedido enviado com sucesso! Protocolo: ${response.protocol}`);
       navigate('/dashboard');
     } catch (err: any) {
@@ -80,8 +88,20 @@ const NewRequest: React.FC = () => {
               backgroundColor: 'rgba(0,0,0,0.02)'
             }}>
               <Paperclip size={32} color="var(--text-muted)" style={{ marginBottom: '1rem' }} />
-              <p>Clique ou arraste arquivos para anexar</p>
-              <input type="file" multiple style={{ display: 'none' }} id="file-upload" />
+              {selectedFiles.length === 0 ? (
+                <p>Clique ou arraste arquivos para anexar</p>
+              ) : (
+                <p style={{ color: 'var(--primary)', fontWeight: 500 }}>
+                  {selectedFiles.length} arquivo(s): {selectedFiles.map(f => f.name).join(', ')}
+                </p>
+              )}
+              <input
+                type="file"
+                multiple
+                style={{ display: 'none' }}
+                id="file-upload"
+                onChange={(e) => setSelectedFiles(Array.from(e.target.files || []))}
+              />
               <button type="button" className="btn" style={{ marginTop: '1rem', border: '1px solid var(--border-color)', backgroundColor: 'var(--white)' }} onClick={() => document.getElementById('file-upload')?.click()}>
                 Selecionar Arquivos
               </button>

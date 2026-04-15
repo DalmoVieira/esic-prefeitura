@@ -14,7 +14,8 @@ const DepartmentManagement: React.FC = () => {
   const [editingDept, setEditingDept] = useState<any>(null);
   const [formData, setFormData] = useState({
     name: '',
-    description: ''
+    description: '',
+    phone: ''
   });
   const [formLoading, setFormLoading] = useState(false);
   const [formError, setFormError] = useState('');
@@ -40,13 +41,15 @@ const DepartmentManagement: React.FC = () => {
       setEditingDept(dept);
       setFormData({
         name: dept.name,
-        description: dept.description || ''
+        description: dept.description || '',
+        phone: dept.phone || ''
       });
     } else {
       setEditingDept(null);
       setFormData({
         name: '',
-        description: ''
+        description: '',
+        phone: ''
       });
     }
     setFormError('');
@@ -145,6 +148,7 @@ const DepartmentManagement: React.FC = () => {
                 <tr>
                   <th style={{ textAlign: 'left', padding: '1rem 1.5rem', fontSize: '0.85rem', textTransform: 'uppercase', color: 'var(--text-muted)' }}>Nome do Setor</th>
                   <th style={{ textAlign: 'left', padding: '1rem 1.5rem', fontSize: '0.85rem', textTransform: 'uppercase', color: 'var(--text-muted)' }}>Descrição</th>
+                  <th style={{ textAlign: 'left', padding: '1rem 1.5rem', fontSize: '0.85rem', textTransform: 'uppercase', color: 'var(--text-muted)' }}>WhatsApp</th>
                   <th style={{ textAlign: 'right', padding: '1rem 1.5rem', fontSize: '0.85rem', textTransform: 'uppercase', color: 'var(--text-muted)' }}>Ações</th>
                 </tr>
               </thead>
@@ -163,8 +167,18 @@ const DepartmentManagement: React.FC = () => {
                     </td>
                     <td style={{ padding: '1rem 1.5rem', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
                       {dept.description || '-'}
-                    </td>
-                    <td style={{ padding: '1rem 1.5rem', textAlign: 'right' }}>
+                    </td>                    <td style={{ padding: '1rem 1.5rem', fontSize: '0.9rem' }}>
+                      {dept.phone ? (
+                        <a
+                          href={`https://wa.me/55${dept.phone.replace(/\D/g, '')}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ color: '#25D366', fontWeight: 'bold', textDecoration: 'none' }}
+                        >
+                          {dept.phone}
+                        </a>
+                      ) : <span style={{ color: 'var(--text-muted)' }}>-</span>}
+                    </td>                    <td style={{ padding: '1rem 1.5rem', textAlign: 'right' }}>
                       <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
                         <button 
                           onClick={() => handleOpenModal(dept)} 
@@ -231,6 +245,17 @@ const DepartmentManagement: React.FC = () => {
                   placeholder="Breve descrição das responsabilidades do setor..."
                   value={formData.description}
                   onChange={(e) => setFormData({...formData, description: e.target.value})}
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">WhatsApp do Setor (Opcional)</label>
+                <input 
+                  type="tel" 
+                  className="form-control" 
+                  placeholder="Ex: (19) 99999-9999"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({...formData, phone: e.target.value})}
                 />
               </div>
 

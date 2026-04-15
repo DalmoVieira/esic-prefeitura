@@ -53,13 +53,14 @@ model User {
 }
 
 model Department {
-  id        String   @id @default(uuid())
-  name      String   @unique
+  id          String   @id @default(uuid())
+  name        String   @unique
   description String?
-  users     User[]
-  requests  Request[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  phone       String?
+  users       User[]
+  requests    Request[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model Request {
@@ -72,6 +73,7 @@ model Request {
   isExtended   Boolean       @default(false)
   extensionJustification String?
   secrecyLevel String?       // Reservado, Secreto, Ultrassecreto
+  response     String?
   
   userId       String
   user         User          @relation(fields: [userId], references: [id])
@@ -80,10 +82,22 @@ model Request {
   department   Department? @relation(fields: [departmentId], references: [id])
 
   movements    Movement[]
-  appeals       Appeal[]
+  attachments  Attachment[]
+  appeals      Appeal[]
   
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
+}
+
+model Attachment {
+  id           String   @id @default(uuid())
+  requestId    String
+  request      Request  @relation(fields: [requestId], references: [id])
+  filename     String
+  originalName String
+  mimetype     String
+  size         Int
+  createdAt    DateTime @default(now())
 }
 
 model Movement {

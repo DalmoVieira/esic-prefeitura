@@ -17,6 +17,7 @@ const AdminDashboard: React.FC = () => {
   const [selectedRequest, setSelectedRequest] = useState<any>(null);
   const [assignDeptId, setAssignDeptId] = useState('');
   const [assignLoading, setAssignLoading] = useState(false);
+  const [assignWhatsappLink, setAssignWhatsappLink] = useState('');
 
   useEffect(() => {
     fetchInitialData();
@@ -69,11 +70,24 @@ const AdminDashboard: React.FC = () => {
     
     try {
       setAssignLoading(true);
+      const dept = departments.find(d => d.id === assignDeptId);
       await api.post(`/requests/${selectedRequest.id}/assign`, { 
         departmentId: assignDeptId,
-        description: `Pedido encaminhado para o setor ${departments.find(d => d.id === assignDeptId)?.name}`
+        description: `Pedido encaminhado para o setor ${dept?.name}`
       });
-      setShowAssignModal(false);
+      
+      // Gera link WhatsApp se o setor tiver telefone
+      if (dept?.phone) {
+        const phone = dept.phone.replace(/\D/g, '');
+        const msg = encodeURIComponent(
+          `Olá! O pedido de informação *${selectedRequest.protocol}* foi encaminhado para o setor *${dept.name}*. Por favor, verifique no sistema e dê andamento.`
+        );
+        setAssignWhatsappLink(`https://wa.me/55${phone}?text=${msg}`);
+      } else {
+        setAssignWhatsappLink('');
+        setShowAssignModal(false);
+      }
+      
       setAssignDeptId('');
       fetchRequests();
     } catch (err: any) {
@@ -213,7 +227,9 @@ const AdminDashboard: React.FC = () => {
                 return (
                   <tr key={req.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
                     <td style={{ padding: '1rem 1.5rem' }}>
-                      <div style={{ fontWeight: 'bold', color: 'var(--primary)' }}>{req.protocol}</div>
+                      <Link to={`/pedido/${req.id}`} style={{ textDecoration: 'none' }}>
+                        <div style={{ fontWeight: 'bold', color: 'var(--primary)' }}>{req.protocol}</div>
+                      </Link>
                       <div style={{ fontSize: '0.85rem', color: 'var(--text-main)', fontWeight: '500' }}>{req.user?.name}</div>
                       <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                         <span style={{ 
@@ -279,34 +295,66 @@ const AdminDashboard: React.FC = () => {
           backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000
         }}>
           <div className="card" style={{ width: '400px', padding: '2rem' }}>
-            <h3 style={{ marginTop: 0 }}>Encaminhar Solicitação</h3>
-            <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>Selecione o setor responsável por responder este pedido.</p>
-            
-            <div className="form-group" style={{ marginTop: '1.5rem' }}>
-              <label className="form-label">Setor Responsável</label>
-              <select 
-                className="form-control"
-                value={assignDeptId}
-                onChange={(e) => setAssignDeptId(e.target.value)}
-              >
-                <option value="">Selecione um setor...</option>
-                {departments.map(d => (
-                  <option key={d.id} value={d.id}>{d.name}</option>
-                ))}
-              </select>
-            </div>
+            {assignWhatsappLink ? (
+              <>
+                <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+                  <CheckCircle size={48} color="var(--success)" style={{ marginBottom: '1rem' }} />
+                  <h3 style={{ margin: 0 }}>Pedido Encaminhado!</h3>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '0.5rem' }}>
+                    Deseja notificar o setor via WhatsApp?
+                  </p>
+                </div>
+                <a
+                  href={assignWhatsappLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn"
+                  style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem', width: '100%', backgroundColor: '#25D366', color: '#fff', fontWeight: 'bold', textDecoration: 'none', marginBottom: '0.75rem' }}
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                  Notificar via WhatsApp
+                </a>
+                <button className="btn" style={{ width: '100%' }} onClick={() => { setAssignWhatsappLink(''); setShowAssignModal(false); }}>
+                  Fechar
+                </button>
+              </>
+            ) : (
+              <>
+                <h3 style={{ marginTop: 0 }}>Encaminhar Solicitação</h3>
+                <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>Selecione o setor responsável por responder este pedido.</p>
+                
+                <div className="form-group" style={{ marginTop: '1.5rem' }}>
+                  <label className="form-label">Setor Responsável</label>
+                  <select 
+                    className="form-control"
+                    value={assignDeptId}
+                    onChange={(e) => setAssignDeptId(e.target.value)}
+                  >
+                    <option value="">Selecione um setor...</option>
+                    {departments.map(d => (
+                      <option key={d.id} value={d.id}>{d.name} {d.phone ? '📱' : ''}</option>
+                    ))}
+                  </select>
+                  {assignDeptId && departments.find(d => d.id === assignDeptId)?.phone && (
+                    <p style={{ fontSize: '0.8rem', color: '#25D366', marginTop: '0.5rem' }}>
+                      ✓ Este setor tem WhatsApp cadastrado — você poderá notificá-lo após encaminhar.
+                    </p>
+                  )}
+                </div>
 
-            <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
-              <button className="btn" style={{ flex: 1 }} onClick={() => setShowAssignModal(false)}>Cancelar</button>
-              <button 
-                className="btn btn-primary" 
-                style={{ flex: 1 }}
-                disabled={!assignDeptId || assignLoading}
-                onClick={handleAssign}
-              >
-                {assignLoading ? 'Encaminhando...' : 'Encaminhar'}
-              </button>
-            </div>
+                <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
+                  <button className="btn" style={{ flex: 1 }} onClick={() => setShowAssignModal(false)}>Cancelar</button>
+                  <button 
+                    className="btn btn-primary" 
+                    style={{ flex: 1 }}
+                    disabled={!assignDeptId || assignLoading}
+                    onClick={handleAssign}
+                  >
+                    {assignLoading ? 'Encaminhando...' : 'Encaminhar'}
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}

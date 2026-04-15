@@ -2,7 +2,7 @@ import { Router } from 'express';
 import AuthController from '../controllers/AuthController';
 import UserController from '../controllers/UserController';
 import DepartmentController from '../controllers/DepartmentController';
-import RequestController from '../controllers/RequestController';
+import RequestController, { upload } from '../controllers/RequestController';
 import { authMiddleware, roleMiddleware } from '../middlewares/auth';
 
 const router = Router();
@@ -25,6 +25,10 @@ router.delete('/departments/:id', roleMiddleware(['ADMIN']), DepartmentControlle
 
 router.get('/requests', RequestController.index);
 router.post('/requests', RequestController.create);
+router.get('/requests/:id', RequestController.show);
+router.put('/requests/:id/respond', roleMiddleware(['ADMIN', 'TECHNICIAN', 'AUTHORITY']), RequestController.respond);
 router.post('/requests/:id/assign', roleMiddleware(['ADMIN']), RequestController.assign);
+router.post('/requests/:id/attachments', upload.array('files', 10), RequestController.uploadAttachment);
+router.get('/requests/:id/attachments', RequestController.listAttachments);
 
 export default router;
