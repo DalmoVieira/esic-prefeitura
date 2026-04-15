@@ -1,0 +1,332 @@
+================================================================================
+          RELATORIO TECNICO E GERENCIAL
+          Sistema e-SIC - Servico de Informacao ao Cidadao
+          Prefeitura Municipal de Rio Claro - RJ
+================================================================================
+
+Data de emissao    : 15 de abril de 2026
+Elaborado por      : Equipe de Tecnologia da Informacao
+Destinatario       : Gestao Municipal - Prefeitura Municipal de Rio Claro - RJ
+Classificacao      : Interno
+
+================================================================================
+1. APRESENTACAO
+================================================================================
+
+O presente relatorio descreve o Sistema e-SIC (Servico de Informacao ao
+Cidadao) implantado para a Prefeitura Municipal de Rio Claro - RJ,
+contemplando sua finalidade legal, arquitetura tecnologica, funcionalidades
+disponiveis, perfis de acesso, estrutura de dados e orientacoes operacionais
+para a gestao municipal.
+
+================================================================================
+2. BASE LEGAL E FINALIDADE
+================================================================================
+
+O sistema foi desenvolvido em atendimento a Lei Federal no 12.527/2011 -
+Lei de Acesso a Informacao (LAI), que obriga todos os orgaos e entidades da
+Administracao Publica a garantir o direito de acesso a informacao a qualquer
+cidadao.
+
+A LAI estabelece:
+
+  - Prazo maximo de 20 dias corridos para resposta ao pedido, prorrogavel
+    por mais 10 dias mediante justificativa.
+  - Possibilidade de 3 instancias de recurso em caso de negativa ou resposta
+    insatisfatoria.
+  - Obrigatoriedade de portal de transparencia com informacoes publicas
+    accessiveis sem cadastro.
+
+O e-SIC digitaliza integralmente esse fluxo, eliminando o atendimento
+presencial e garantindo rastreabilidade e conformidade legal em cada etapa.
+
+================================================================================
+3. VISAO GERAL DO SISTEMA
+================================================================================
+
+O sistema e uma plataforma web de uso exclusivamente municipal, configurada
+com a identidade visual e os dados da Prefeitura de Rio Claro - RJ (brasao,
+favicon, cor institucional, CNPJ, endereco e contatos). Ele opera 24 horas
+por dia, 7 dias por semana, e e acessivel por qualquer dispositivo com
+navegador de internet.
+
+3.1 Enderecos de Acesso
+-----------------------
+  Sistema (producao)     : A configurar conforme hospedagem
+  Portal de Transparencia: Pagina inicial - acesso publico sem login
+  Painel Administrativo  : /admin - exige autenticacao
+
+================================================================================
+4. ARQUITETURA TECNOLOGICA
+================================================================================
+
+O sistema e composto por duas camadas independentes que se comunicam
+via API REST.
+
+4.1 Backend (Servidor de Aplicacao)
+------------------------------------
+  Linguagem        : TypeScript / Node.js
+  Framework        : Express 5
+  Banco de dados   : PostgreSQL 14+
+  ORM              : Prisma 5.21
+  Autenticacao     : JSON Web Token (JWT)
+  Upload de arquivos: Multer (armazenamento local)
+  E-mail           : Nodemailer (SMTP configuravel)
+  Porta padrao     : 3001
+
+4.2 Frontend (Interface do Usuario)
+-------------------------------------
+  Linguagem        : TypeScript / React 19
+  Build            : Vite
+  Roteamento       : React Router v7
+  Icones           : Lucide React
+  Porta padrao     : 5173 (dev) / 80 (producao)
+
+4.3 Diagrama Simplificado
+--------------------------
+
+  Cidadao/Servidor --> Frontend (React) --> Backend (Node.js) --> PostgreSQL
+                                                  |
+                                                  +-- /uploads (brasao, favicon, anexos)
+                                                  +-- SMTP     (notificacoes por e-mail)
+
+================================================================================
+5. MODULOS E FUNCIONALIDADES
+================================================================================
+
+5.1 Portal Publico (sem login)
+-------------------------------
+  Pagina inicial         : Apresentacao institucional com slogan e identidade
+  Portal de Transparencia: Busca textual em pedidos respondidos
+  Cadastro de cidadao    : Registro com CPF/CNPJ, e-mail, telefone e senha
+  Login                  : Autenticacao por e-mail e senha com token JWT
+  Recuperacao de senha   : Tela de recuperacao disponivel
+
+5.2 Painel do Cidadao
+----------------------
+  Novo pedido de acesso  : Formulario com descricao e nivel de sigilo
+                           (Reservado, Secreto, Ultrassecreto)
+  Acompanhamento         : Listagem de todos os pedidos com status em tempo real
+  Detalhe do pedido      : Historico de tramitacao, datas e resposta completa
+  Upload de anexos       : Envio de documentos de suporte ao pedido
+  Recurso                : Abertura em 1a, 2a e 3a instancia
+
+5.3 Painel do Tecnico / Servidor
+----------------------------------
+  Lista de pedidos       : Pedidos encaminhados ao setor do servidor
+  Responder pedido       : Registro de resposta com prazo controlado
+  Triagem de pedidos     : Classificacao e encaminhamento ao departamento
+  Historico de tramitacao: Registro completo de cada etapa, usuario e data
+
+5.4 Painel Administrativo
+--------------------------
+  Dashboard              : Total de pedidos, abertos, respondidos, vencidos,
+                           recursos
+  Gestao de pedidos      : Visualizacao, triagem e encaminhamento geral
+  Encaminhamento WhatsApp: Botao gera mensagem pre-formatada para WhatsApp
+                           do servidor responsavel
+  Gestao de usuarios     : Criar, editar e excluir servidores com perfis
+  Gestao de departamentos: Criar, editar e excluir secretarias/setores
+  Configuracoes          : Brasao, favicon, cor, CNPJ, slogan, endereco
+
+================================================================================
+6. PERFIS DE ACESSO
+================================================================================
+
+O sistema possui 5 perfis distintos, com permissoes graduadas:
+
+  CITIZEN (Cidadao)
+    Quem usa : Municipipes em geral
+    Acesso   : Abrir pedidos, acompanhar, enviar recursos
+
+  TECHNICIAN (Tecnico)
+    Quem usa : Servidores das secretarias
+    Acesso   : Responder pedidos atribuidos ao seu setor
+
+  AUTHORITY (Autoridade)
+    Quem usa : Secretarios / Chefes de setor
+    Acesso   : Responder e acompanhar pedidos do setor
+
+  CONTROL (Controle)
+    Quem usa : Controladoria / Ouvidoria
+    Acesso   : Visualizar todos os pedidos e usuarios; monitorar prazos
+
+  ADMIN (Administrador)
+    Quem usa : TI / Gestor do e-SIC
+    Acesso   : Total - configurar, gerenciar, encaminhar, deletar
+
+================================================================================
+7. FLUXO DE UM PEDIDO DE ACESSO A INFORMACAO
+================================================================================
+
+  1. Cidadao cadastra-se (se necessario) e faz login
+
+  2. Cidadao preenche e envia o pedido
+       --> Sistema gera protocolo unico (ex: ESIC-2026-001)
+       --> Registra prazo de 20 dias corridos
+
+  3. Administrador ou Controle recebe o pedido com status ABERTO
+
+  4. Pedido e encaminhado ao departamento competente
+       --> Sistema registra movimento
+       --> Notifica via WhatsApp e/ou e-mail
+
+  5. Tecnico ou Autoridade do setor responde o pedido
+       --> Status muda para RESPONDIDO
+
+  6. Cidadao visualiza a resposta no painel ou por e-mail
+
+  7. Se insatisfeito -> Cidadao abre recurso (1a instancia)
+       --> Controle/Autoridade analisa e registra decisao
+
+  8. Se ainda insatisfeito -> 2a e 3a instancias disponiveis
+
+================================================================================
+8. TRANSPARENCIA PUBLICA
+================================================================================
+
+A pagina de Transparencia e acessivel sem qualquer login. A plataforma
+permite que qualquer cidadao:
+
+  - Busque pedidos respondidos por palavra-chave
+  - Veja o numero do protocolo, secretaria responsavel, data, pergunta
+    e resposta
+  - Clique em temas sugeridos para acelerar a busca
+
+Isso cumpre o paragrafo 3o do Art. 8o da LAI, que exige divulgacao proativa
+das informacoes de interesse publico.
+
+================================================================================
+9. SEGURANCA E CONFORMIDADE
+================================================================================
+
+  Autenticacao         : JWT com expiracao configuravel; senha nunca trafega
+                         em texto claro
+  Senhas               : Hash irreversivel com bcrypt (salt 10); validacao de
+                         forca no cadastro (8+ chars, maiuscula, minuscula,
+                         numero, simbolo)
+  Autorizacao          : Middleware de perfil em todas as rotas sensiveis
+  Upload de arquivos   : Filtro por tipo MIME; limite de 2 MB por arquivo
+  Dados sensiveis      : CPF/CNPJ vinculados ao usuario; nao expostos
+                         publicamente
+  Controle de acesso   : RBAC (Role-Based Access Control) em todas as rotas
+  Prevencao de injecao : Prisma ORM com queries parametrizadas (sem SQL bruto)
+
+================================================================================
+10. IDENTIDADE VISUAL CONFIGURAVEL
+================================================================================
+
+O sistema foi projetado para ser multi-municipio. As seguintes informacoes
+sao configuradas pelo proprio administrador, sem alterar o codigo-fonte:
+
+  Campo                    | Configurado para Rio Claro - RJ
+  -------------------------+------------------------------------------
+  Nome do municipio        | Rio Claro
+  Estado                   | RJ
+  CNPJ                     | 29.138.489/0001-04
+  Slogan institucional     | Configuravel
+  Endereco                 | Configuravel
+  Telefone da Ouvidoria    | (24) 3351-5600
+  E-mail do e-SIC          | esic@rioclaro.rj.gov.br
+  Site da Prefeitura       | https://rioclaro.rj.gov.br
+  Brasao / Logotipo        | Imagem PNG/JPG/SVG/WebP
+  Favicon (aba navegador)  | Imagem PNG/ICO
+  Cor primaria institucional| #1a5276 (azul)
+
+================================================================================
+11. DEPARTAMENTOS CADASTRADOS
+================================================================================
+
+Os seguintes setores estao pre-cadastrados no sistema:
+
+  Secretaria              | Descricao
+  ------------------------+------------------------------------------------
+  Saude                   | Secretaria Municipal de Saude
+  Educacao                | Secretaria Municipal de Educacao
+  Administracao           | Secretaria de Administracao e RH
+  Obras e Servicos        | Secretaria de Obras e Servicos Publicos
+  Financas                | Secretaria Municipal de Financas
+  Meio Ambiente           | Secretaria de Meio Ambiente e Sustentabilidade
+  Assistencia Social      | Secretaria de Assistencia e Desenv. Social
+
+Novos departamentos podem ser criados ou removidos pelo administrador a
+qualquer momento.
+
+================================================================================
+12. CRONOGRAMA DE DESENVOLVIMENTO
+================================================================================
+
+  Fase                                               | Situacao
+  ---------------------------------------------------+-----------
+  Estrutura base (autenticacao, rotas, banco)        | Concluida
+  Gestao de pedidos, tramitacao e recursos           | Concluida
+  Encaminhamento via WhatsApp para secretarias       | Concluida
+  Portal de transparencia com busca publica          | Concluida
+  Customizacao municipal (brasao, favicon, cores)    | Concluida
+  Validacao de seguranca de senhas                   | Concluida
+  SITUACAO ATUAL                                     | OPERACIONAL
+
+================================================================================
+13. REQUISITOS DE INFRAESTRUTURA PARA PRODUCAO
+================================================================================
+
+  Componente                  | Minimo recomendado
+  ----------------------------+---------------------------------------------
+  Servidor (VPS ou Cloud)     | 2 vCPU, 4 GB RAM, 40 GB SSD
+  Banco de dados PostgreSQL   | Instancia gerenciada ou self-hosted
+  Dominio                     | ex: esic.rioclaro.rj.gov.br
+  Certificado SSL (HTTPS)     | Obrigatorio - Let's Encrypt (gratuito)
+  Backup automatico           | Diario, retencao minima de 30 dias
+  Servidor SMTP               | Para envio de e-mails de notificacao
+
+================================================================================
+14. PONTOS DE FUNCAO E ESTIMATIVA DE VALOR
+================================================================================
+
+O sistema foi avaliado pelo metodo IFPUG de Analise de Pontos de Funcao (APF):
+
+  Categoria                                  | Pontos
+  -------------------------------------------+--------
+  Arquivos Logicos Internos (7 entidades)    |  63 PF
+  Arquivos de Interface Externa (e-mail)     |   5 PF
+  Entradas Externas (13 operacoes)           |  51 PF
+  Saidas Externas (WhatsApp, e-mail, relat.) |  14 PF
+  Consultas Externas (7 listagens/buscas)    |  26 PF
+  Fator de ajuste aplicado: 1,07             |
+  TOTAL AJUSTADO                             | ~170 PF
+
+  Estimativa de valor de mercado do software: R$ 136.000 - R$ 306.000
+
+================================================================================
+15. PROXIMOS PASSOS RECOMENDADOS
+================================================================================
+
+  Acao                                                        | Prioridade
+  ------------------------------------------------------------+-----------
+  Configurar dominio e certificado SSL                        | Alta
+  Configurar servidor SMTP para e-mails                       | Alta
+  Cadastrar todos os servidores responsaveis por secretaria   | Alta
+  Realizar treinamento com os tecnicos de cada secretaria     | Alta
+  Divulgar o canal aos cidadaos (site, redes sociais)         | Media
+  Configurar rotina de backup automatico do banco             | Alta
+  Definir responsavel pelo monitoramento do prazo de 20 dias  | Alta
+  Avaliar integracao com sistema de protocolo fisico existente | Baixa
+
+================================================================================
+16. CONCLUSAO
+================================================================================
+
+O sistema e-SIC entregue a Prefeitura Municipal de Rio Claro - RJ e uma
+solucao completa, segura e em conformidade com a Lei de Acesso a Informacao.
+Sua arquitetura moderna garante escalabilidade, manutenibilidade e facilidade
+de personalizacao sem dependencia de fornecedor.
+
+A plataforma coloca Rio Claro - RJ em conformidade integral com a LAI,
+moderniza o atendimento ao cidadao, elimina o fluxo presencial e manual de
+pedidos de informacao, e oferece rastreabilidade total de cada solicitacao,
+do protocolo a resposta final.
+
+================================================================================
+Documento gerado em 15 de abril de 2026.
+Prefeitura Municipal de Rio Claro - RJ | e-SIC - Servico de Informacao ao Cidadao
+================================================================================
