@@ -19,14 +19,8 @@ import DepartmentManagement from './pages/DepartmentManagement.tsx';
 import MunicipalConfigPage from './pages/MunicipalConfigPage.tsx';
 
 const App: React.FC = () => {
-  // Use /esic-prefeitura if we are in production OR if the current URL already starts with it
-  const basename = (import.meta.env.PROD || window.location.pathname.startsWith('/esic-prefeitura')) 
-    ? '/esic-prefeitura' 
-    : '';
-  
-  console.log('App rendering, path:', window.location.pathname, 'detected basename:', basename);
   return (
-    <Router basename={basename}>
+    <Router>
       <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
         <Header />
         <main style={{ flex: 1, padding: '2rem 0' }}>
