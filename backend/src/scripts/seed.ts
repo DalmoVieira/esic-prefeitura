@@ -307,7 +307,8 @@ async function main() {
   ];
 
   for (const m of movementsData) {
-    await prisma.movement.create({ data: m });
+    if (!m.requestId) continue;
+    await prisma.movement.create({ data: { ...m, requestId: m.requestId } });
   }
   console.log('✅ Movimentações criadas.');
 
@@ -338,7 +339,8 @@ async function main() {
   ];
 
   for (const a of appealsData) {
-    await prisma.appeal.create({ data: a });
+    if (!a.requestId) continue;
+    await prisma.appeal.create({ data: { ...a, requestId: a.requestId } });
   }
   console.log('✅ Recursos criados.');
 
