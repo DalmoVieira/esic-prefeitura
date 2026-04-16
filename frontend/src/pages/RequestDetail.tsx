@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, FileText, Clock, MessageSquare, Paperclip, Gavel, Download } from 'lucide-react';
+import { ArrowLeft, FileText, Clock, MessageSquare, Gavel, Download } from 'lucide-react';
 import { translateStatus, getStatusColor } from '../utils/statusTranslate';
 import { api } from '../services/api';
 
