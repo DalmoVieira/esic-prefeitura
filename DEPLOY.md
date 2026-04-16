@@ -64,8 +64,8 @@ Crie a pasta base e clone o repositório:
 ```bash
 mkdir -p /var/www
 cd /var/www
-git clone https://github.com/DalmoVieira/esic-prefeitura.git
-cd esic-prefeitura
+git clone https://github.com/DalmoVieira/esic-rioclarorj.git
+cd esic-rioclarorj
 ```
 
 ### Backend (API na porta 3001)
@@ -116,9 +116,9 @@ Cole a configuração abaixo (nós adicionaremos o SSL com o Certbot depois):
 <VirtualHost *:80>
     ServerName dvsinformaticarc.com
     ServerAlias www.dvsinformaticarc.com
-    DocumentRoot /var/www/esic-prefeitura/frontend/dist
+    DocumentRoot /var/www/esic-rioclarorj/frontend/dist
 
-    <Directory /var/www/esic-prefeitura/frontend/dist>
+    <Directory /var/www/esic-rioclarorj/frontend/dist>
         AllowOverride All
         Require all granted
     </Directory>
@@ -127,6 +127,8 @@ Cole a configuração abaixo (nós adicionaremos o SSL com o Certbot depois):
     ProxyPreserveHost On
     ProxyPass /api http://127.0.0.1:3001/api
     ProxyPassReverse /api http://127.0.0.1:3001/api
+    ProxyPass /uploads http://127.0.0.1:3001/uploads
+    ProxyPassReverse /uploads http://127.0.0.1:3001/uploads
 
     ErrorLog /var/log/httpd/esic_error.log
     CustomLog /var/log/httpd/esic_access.log combined
@@ -135,7 +137,7 @@ Cole a configuração abaixo (nós adicionaremos o SSL com o Certbot depois):
 
 Salvar as rotas do React (SPA):
 ```bash
-cat << 'EOF' > /var/www/esic-prefeitura/frontend/dist/.htaccess
+cat << 'EOF' > /var/www/esic-rioclarorj/frontend/dist/.htaccess
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteBase /
@@ -155,7 +157,7 @@ Se não rodar isso, o Apache não poderá ler sua pasta nem fazer o proxy (Erro 
 setsebool -P httpd_can_network_connect 1
 
 # Permite que o Apache leia/escreva nos arquivos do sistema (Frontend)
-chcon -Rt httpd_sys_content_t /var/www/esic-prefeitura/frontend/dist/
+chcon -Rt httpd_sys_content_t /var/www/esic-rioclarorj/frontend/dist/
 ```
 
 Reinicie e ative o Apache:

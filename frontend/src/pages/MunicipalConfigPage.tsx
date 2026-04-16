@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Save, Building2, Upload, RefreshCw } from 'lucide-react';
 import { useConfig } from '../contexts/ConfigContext';
-
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+import { API_URL, UPLOADS_URL } from '../services/api';
 
 const MunicipalConfigPage: React.FC = () => {
   const navigate = useNavigate();
@@ -42,10 +41,10 @@ const MunicipalConfigPage: React.FC = () => {
       primaryColor: config.primaryColor || '#1a5276',
     });
     if (config.coatOfArmsFile) {
-      setCoatOfArmsPreview(`http://localhost:3001/uploads/${config.coatOfArmsFile}`);
+      setCoatOfArmsPreview(`${UPLOADS_URL}/${config.coatOfArmsFile}`);
     }
     if (config.faviconFile) {
-      setFaviconPreview(`http://localhost:3001/uploads/${config.faviconFile}`);
+      setFaviconPreview(`${UPLOADS_URL}/${config.faviconFile}`);
     }
   }, [config]);
 
@@ -86,7 +85,7 @@ const MunicipalConfigPage: React.FC = () => {
         formData.append('favicon', faviconFile);
       }
 
-      const res = await fetch(`${API_BASE}/config`, {
+      const res = await fetch(`${API_URL}/config`, {
         method: 'PUT',
         headers: { Authorization: `Bearer ${token}` },
         body: formData,

@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { API_URL, UPLOADS_URL } from '../services/api';
 
 export interface MunicipalConfig {
   id: string;
@@ -31,14 +32,12 @@ const ConfigContext = createContext<ConfigContextType>({
   refreshConfig: async () => {},
 });
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
-
 export const ConfigProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [config, setConfig] = useState<MunicipalConfig>(defaultConfig);
 
   const fetchConfig = async () => {
     try {
-      const res = await fetch(`${API_BASE}/config`);
+      const res = await fetch(`${API_URL}/config`);
       if (res.ok) {
         const data: MunicipalConfig = await res.json();
         setConfig(data);
@@ -53,7 +52,7 @@ export const ConfigProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
         // Apply favicon if configured
         const faviconUrl = data.faviconFile
-          ? `${import.meta.env.VITE_UPLOADS_URL || 'http://localhost:3001/uploads'}/${data.faviconFile}`
+          ? `${UPLOADS_URL}/${data.faviconFile}`
           : null;
         if (faviconUrl) {
           let link = document.querySelector<HTMLLinkElement>('link[rel~="icon"]');

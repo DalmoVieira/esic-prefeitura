@@ -1,6 +1,10 @@
-const API_URL = window.location.hostname === 'localhost' 
-  ? 'http://localhost:3001/api' 
+export const API_URL = window.location.hostname === 'localhost'
+  ? 'http://localhost:3001/api'
   : '/api';
+
+export const UPLOADS_URL = window.location.hostname === 'localhost'
+  ? 'http://localhost:3001/uploads'
+  : '/uploads';
 
 export const api = {
   async request(endpoint: string, options: RequestInit = {}) {
