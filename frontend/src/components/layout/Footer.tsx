@@ -35,8 +35,8 @@ const Footer: React.FC = () => {
               {config.website && (
                 <li><a href={config.website} target="_blank" rel="noopener noreferrer" style={{ color: '#bbb' }}>Portal da Prefeitura</a></li>
               )}
-              <li><a href="https://www.planalto.gov.br/ccivil_03/_ato2011-2014/2011/lei/l12527.htm" target="_blank" rel="noopener noreferrer" style={{ color: '#bbb' }}>Lei de Acesso à Informação</a></li>
-              <li><Link to="/faq" style={{ color: '#bbb' }}>Perguntas Frequentes</Link></li>
+              <li><a href="https://www.planalto.gov.br/ccivil_03/_ato2011-2014/2011/lei/l12527.htm" target="_blank" rel="noopener noreferrer" style={{ color: '#bbb', textDecoration: 'underline' }}>Lei de Acesso à Informação</a></li>
+              <li><Link to="/faq" style={{ color: '#bbb', textDecoration: 'underline' }}>Perguntas Frequentes</Link></li>
             </ul>
           </div>
           <div>
