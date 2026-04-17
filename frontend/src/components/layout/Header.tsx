@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ShieldCheck, LogIn, LogOut, User as UserIcon, LayoutDashboard, Menu, X } from 'lucide-react';
 import { useConfig } from '../../contexts/ConfigContext';
+import { UPLOADS_URL } from '../../services/api';
 
 const Header: React.FC = () => {
   const navigate = useNavigate();
@@ -42,7 +43,7 @@ const Header: React.FC = () => {
         }}>
           {config.coatOfArmsFile ? (
             <img
-              src={`http://localhost:3001/uploads/${config.coatOfArmsFile}`}
+              src={`${UPLOADS_URL}/${config.coatOfArmsFile}`}
               alt={`Brasão ${config.cityName}`}
               style={{ width: '40px', height: '40px', objectFit: 'contain' }}
             />
