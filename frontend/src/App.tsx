@@ -17,6 +17,7 @@ import Register from './pages/Register.tsx';
 import UserManagement from './pages/UserManagement.tsx';
 import DepartmentManagement from './pages/DepartmentManagement.tsx';
 import MunicipalConfigPage from './pages/MunicipalConfigPage.tsx';
+import FAQ from './pages/FAQ.tsx';
 
 const App: React.FC = () => {
   return (
@@ -41,6 +42,7 @@ const App: React.FC = () => {
             <Route path="/pedido/:id" element={<RequestDetail />} />
             <Route path="/esqueci-senha" element={<ForgotPassword />} />
             <Route path="/cadastro" element={<Register />} />
+            <Route path="/faq" element={<FAQ />} />
             <Route path="*" element={<div className="container"><h1>404 - Página Não Encontrada</h1><p>Caminho: {window.location.pathname}</p><Link to="/">Voltar para Home</Link></div>} />
           </Routes>
         </main>

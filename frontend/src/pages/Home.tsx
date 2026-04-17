@@ -73,7 +73,7 @@ const Home: React.FC = () => {
           <p style={{ fontSize: '1.1rem', marginBottom: '1.5rem' }}>
             A Lei Estadual nº 12.527/2011 regulamenta o direito constitucional de acesso às informações públicas. É um instrumento fundamental para a consolidação da democracia.
           </p>
-          <a href="#" className="btn-primary btn" style={{ fontSize: '0.9rem' }}>Saiba mais sobre a LAI</a>
+          <a href="https://www.planalto.gov.br/ccivil_03/_ato2011-2014/2011/lei/l12527.htm" target="_blank" rel="noopener noreferrer" className="btn-primary btn" style={{ fontSize: '0.9rem' }}>Saiba mais sobre a LAI</a>
         </div>
         <div style={{ flex: '1 1 300px', textAlign: 'center' }}>
           <div style={{ fontSize: '4rem', fontWeight: '800', color: 'var(--primary)' }}>20+10</div>
