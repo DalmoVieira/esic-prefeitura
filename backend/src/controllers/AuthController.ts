@@ -45,7 +45,7 @@ export class AuthController {
       });
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: error.issues });
+        return res.status(400).json({ error: 'E-mail ou senha inválidos. Verifique os campos e tente novamente.' });
       }
       return res.status(500).json({ error: 'Erro interno no servidor' });
     }

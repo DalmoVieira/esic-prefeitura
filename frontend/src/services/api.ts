@@ -35,7 +35,8 @@ export const api = {
     const data = await response.json();
 
     if (!response.ok) {
-      throw new Error(data.error || 'Erro na requisição');
+      const errMsg = typeof data.error === 'string' ? data.error : JSON.stringify(data.error);
+      throw new Error(errMsg || 'Erro na requisição');
     }
 
     return data;
