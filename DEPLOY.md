@@ -135,21 +135,6 @@ Cole a configuração abaixo (nós adicionaremos o SSL com o Certbot depois):
 </VirtualHost>
 ```
 
-Salvar as rotas do React (SPA):
-```bash
-cat << 'EOF' > /var/www/esic-rioclarorj/frontend/dist/.htaccess
-<IfModule mod_rewrite.c>
-  RewriteEngine On
-  RewriteBase /
-  RewriteRule ^index\.html$ - [L]
-  RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteCond %{REQUEST_FILENAME} !-l
-  RewriteRule . /index.html [L]
-</IfModule>
-EOF
-```
-
 ### 🚨 Regras do SELinux (Obrigatoriamente rodar!)
 Se não rodar isso, o Apache não poderá ler sua pasta nem fazer o proxy (Erro 403 e 503 garantidos):
 ```bash
